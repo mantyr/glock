@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "aPB0YILckIqlscNr0SZNecy0IeY=",
+			"path": "github.com/KyleBanks/go-kit/log",
+			"revision": "f7fdd20d1381e4f457e7e9fbb2f13458b5a9656b",
+			"revisionTime": "2016-07-16T17:14:44Z"
+		},
+		{
+			"checksumSHA1": "e/hQx3NnhUn5QoQkqJqKS0LvBcI=",
+			"path": "github.com/KyleBanks/go-kit/milliseconds",
+			"revision": "f7fdd20d1381e4f457e7e9fbb2f13458b5a9656b",
+			"revisionTime": "2016-07-16T17:14:44Z"
+		},
+		{
+			"checksumSHA1": "O51mhItaR1qxns0TO2TTX9SIY6U=",
+			"path": "github.com/KyleBanks/go-kit/router",
+			"revision": "f7fdd20d1381e4f457e7e9fbb2f13458b5a9656b",
+			"revisionTime": "2016-07-16T17:14:44Z"
+		}
+	],
+	"rootPath": "github.com/KyleBanks/glock"
+}

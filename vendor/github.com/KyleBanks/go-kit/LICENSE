@@ -1,17 +1,3 @@
-# glock
-
-`glock` is a REST based locking system for distributed applications.
-
-## Options
-
-The following ptions can be specified when running `glock`:
-
-- `-p` *(Default: 7887)*: The port to run `glock` on.
-- `-v` *(Default: false)*: Enables verbose output.
-
-## License
-
-```
 The MIT License (MIT)
 
 Copyright (c) 2016 Kyle Banks
@@ -33,4 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-```
