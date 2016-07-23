@@ -7,8 +7,7 @@
 - [Core Concepts](#core-concepts)
 - [Options](#options)
 - [API](#api)
-    - [Success Response](#success-response)
-    - [Error Response](#error-response)
+    - [General](#general)
     - [Lock](#lock)
 - [Testing](#testing)
 - [License](#license)
@@ -28,13 +27,15 @@ The following ptions can be specified when running `glock`:
 
 ## API
 
+### General
+
 All `glock` methods are exposed via a REST API accessible at:
 
 ```
 <host>:<port>/api/v1.0/<action>
 ```
 
-### Success Response
+#### Success Response
 
 For any action, one of two possible JSON responses can be returned. For successful actions, a `Success Response` is returned that looks like so:
 
@@ -48,7 +49,7 @@ For any action, one of two possible JSON responses can be returned. For successf
 ```
 The `extras` property may or may not exist, depending on the action. The contents of `extras` is documented for each action below.
 
-### Error Response
+#### Error Response
 
 For failed actions, a `Error Response` is returned:
 
