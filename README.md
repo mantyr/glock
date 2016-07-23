@@ -4,6 +4,15 @@
 
 `glock` is a REST based locking system for distributed applications.
 
+- [Core Concepts](#core-concepts)
+- [Options](#options)
+- [API](#api)
+    - [Success Response](#success-response)
+    - [Error Response](#error-response)
+    - [Lock](#lock)
+- [Testing](#testing)
+- [License](#license)
+
 ## Core Concepts
 
 The majority of `glock` actions require, at minimum, a `key` and a `secret`.
@@ -26,18 +35,23 @@ All `glock` methods are exposed via a REST API accessible at:
 ```
 
 ### Success Response
+
 For any action, one of two possible JSON responses can be returned. For successful actions, a `Success Response` is returned that looks like so:
 
 ```
 {
     "success": true,
-    "extras": {}
+    "extras": {
+        "key": "value"
+    }
 }
 ```
 The `extras` property may or may not exist, depending on the action. The contents of `extras` is documented for each action below.
 
 ### Error Response
+
 For failed actions, a `Error Response` is returned:
+
 ```
 {
     "success": false,
@@ -50,7 +64,7 @@ For failed actions, a `Error Response` is returned:
 
 The error code of an `Error Response` contains a particular error code for each unique error that can occur, allowing you to take specific action based on the error received.
 
-### /lock
+### Lock
 
 **Path:** */api/v1.0/lock*
 
