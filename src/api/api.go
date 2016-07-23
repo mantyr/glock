@@ -45,7 +45,7 @@ func New(logger *log.Logger, port int, glocker glock.Glocker) *glockApi {
 
 // Run starts the glockApi server.
 func (g glockApi) Run() {
-	http.HandleFunc("/lock", g.lockHandler)
+	http.HandleFunc("/lock", g.HandleLock)
 
 	g.logger.Error(http.ListenAndServe(fmt.Sprintf(":%v", g.port), nil))
 }
@@ -55,7 +55,7 @@ func (g glockApi) Write(a *apiResponse, w http.ResponseWriter, r *http.Request) 
 	g.logger.Printf("%v: %v", r.RequestURI, a)
 
 	// Set the response code
-	if a.success {
+	if a.Success {
 		w.WriteHeader(codeSuccess)
 	} else {
 		w.WriteHeader(codeError)
@@ -65,5 +65,7 @@ func (g glockApi) Write(a *apiResponse, w http.ResponseWriter, r *http.Request) 
 	w.Header().Add(contentTypeHeaderName, contentTypeHeaderValue)
 
 	// Write the response
-	json.NewEncoder(w).Encode(a)
+	if err := json.NewEncoder(w).Encode(a); err != nil {
+		g.logger.Error(err)
+	}
 }

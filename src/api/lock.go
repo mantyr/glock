@@ -15,8 +15,8 @@ const (
 )
 
 
-// lockHandler handles incoming API requests to perform a lock.
-func (g glockApi) lockHandler(w http.ResponseWriter, r *http.Request) {
+// HandleLock handles incoming API requests to perform a lock.
+func (g glockApi) HandleLock(w http.ResponseWriter, r *http.Request) {
 	// Validate required params
 	if !router.HasParam(r, LockRequired_Key) {
 		g.Write(NewFailedResponse(glock.ErrMissingKey), w, r)

@@ -6,22 +6,22 @@ import (
 )
 
 var (
-	SuccessResponse = &apiResponse{success: true, error: nil}
+	SuccessResponse = &apiResponse{Success: true, Error: nil}
 )
 
 type apiResponse struct {
-	success bool `json:"success"`
-	error *glock.GlockError `json:"error"`
+	Success bool `json:"success"`
+	Error   *glock.GlockError `json:"error"`
 }
 
 // NewFailedResponse instantiates and returns a new apiResponse for a failure case.
 func NewFailedResponse(err *glock.GlockError) *apiResponse {
 	return &apiResponse{
-		success: false,
-		error: err,
+		Success: false,
+		Error: err,
 	}
 }
 
 func (a apiResponse) String() string {
-	return fmt.Sprintf(`{Success: %v, Error: %v}`, a.success, a.error)
+	return fmt.Sprintf(`{Success: %v, Error: %v}`, a.Success, a.Error)
 }

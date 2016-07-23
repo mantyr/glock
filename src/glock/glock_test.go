@@ -27,7 +27,7 @@ func TestGlock_LockWithDuration(t *testing.T) {
 
 	// Valid case
 	validKey := fmt.Sprintf("testLockWithDuration:%v", time.Now().Unix())
-	timeout := 1000 * 2
+	timeout := 200
 	if err := g.LockWithDuration(validKey, "secret", timeout); err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,8 @@ func TestGlock_LockWithDuration(t *testing.T) {
 	}
 
 	// Wait for the lock to expire
-	time.Sleep(time.Duration(timeout) * time.Millisecond)
+	// TODO: When the unlocking becomes more aggress, remove the *2
+	time.Sleep(time.Duration(timeout * 2) * time.Millisecond)
 
 	// Try to lock again, expecting success
 	if err := g.LockWithDuration(validKey, "secret", timeout); err != nil {
