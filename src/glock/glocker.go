@@ -14,4 +14,9 @@ type Glocker interface {
 	// Unlock attempts to unlock a locked key using the secret provided.
 	// If the secret doesn't match, or the key isn't locked, an error is returned.
 	Unlock(key, secret string) *GlockError
+
+	// Extend attempts to extend the lock on a key.
+	// If the key was locked without an expire time, the extension will be the current time + durationMs.
+	// If the key isn't locked or the secret doesn't match, an error is returned.
+	Extend(key, secret string, durationMs int) *GlockError
 }

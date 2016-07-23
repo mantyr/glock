@@ -79,12 +79,22 @@ func (g glock) isLocked(key string) bool {
 	return true
 }
 
+// secretMatches compares the secret provided with the secret stored alongside the lock of the key.
+func (g glock) secretMatches(key, secret string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	lock := g.lockRegister[key];
+	return lock.secret == secret
+}
+
 // Lock attempts to register a lock on the specified key and return a secret value that
 // can later be used to unlock.
 func (g glock) Lock(key string) (string, *GlockError) {
 	g.logger.Printf("Lock(%v)", key)
 	return g.lock(key, noExpire)
 }
+
 // LockWithDuration is the same as Lock, however it automatically expires the key after
 // a specified duration.
 func (g glock) LockWithDuration(key string, durationMs int) (string, *GlockError) {
@@ -113,21 +123,45 @@ func (g glock) LockWithDuration(key string, durationMs int) (string, *GlockError
 func (g glock) Unlock(key, secret string) *GlockError {
 	g.logger.Printf("Unlock(%v, %v)", key, secret)
 
-	// If it's not locked, return
+	// If it's not locked, or the secret doesn't match, return
 	if !g.isLocked(key) {
 		return ErrLockNotExists
+	} else if !g.secretMatches(key, secret) {
+		return ErrSecretDoesNotMatch
 	}
 
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	// Check the secret
-	if lock := g.lockRegister[key]; lock.secret != secret {
+	// Looks good, unlock
+	g.unlock(key)
+
+	return nil
+}
+
+// Extend attempts to extend the lock on a key.
+// If the key was locked without an expire time, the extension will be the current time + durationMs.
+// If the key isn't locked or the secret doesn't match, an error is returned.
+func (g glock) Extend(key, secret string, durationMs int) *GlockError {
+	g.logger.Printf("Extend(%v, %v, %v)", key, secret, durationMs)
+
+	// Validate the key and secret
+	if !g.isLocked(key) {
+		return ErrLockNotExists
+	} else if !g.secretMatches(key, secret) {
 		return ErrSecretDoesNotMatch
 	}
 
-	// Looks good, unlock
-	g.unlock(key)
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	// Looks good, extend the lock
+	lock := g.lockRegister[key]
+	if lock.expire == noExpire {
+		lock.expire = time.Now()
+	}
+	lock.expire = lock.expire.Add(time.Millisecond * time.Duration(durationMs))
+
 	return nil
 }
 

@@ -14,6 +14,7 @@
     - [General](#general)
     - [Lock](#lock)
     - [Unlock](#unlock)
+    - [Extend](#extend)
 - [Testing](#testing)
 - [License](#license)
 
@@ -147,6 +148,37 @@ If the unlock fails for any reason, such as the `key` not being locked or the `s
 ```
 -- Request:
 /api/v1.0/unlock?key=sampleKey&secret=1234567890-0987654321
+
+-- Response:
+{
+    "success": true,
+    "extras": {}
+}
+```
+
+### Extend
+
+Extends the lock duration on a `key`, using the `secret` returned from the lock action as authorization to perform the extension.
+
+If the original lock didn't specify a duration, and is therefor infinite, the expire time will be set to the current time plus the `duration` provided.
+
+**Path:** */api/v1.0/extend*
+
+**Parameters:**
+- `key`: The `key` to unlock.
+- `secret`: The `secret` returned by a lock action that grants authorization to unlock the `key`. If the secret is incorrect, the unlock will fail.
+- `duration`: The `duration`, in milliseconds, by which to extend the lock.
+
+**Response:**
+
+If the extension is successful, a `Success Response` is returned.
+
+If the extension fails for any reason, such as the `key` not being locked or the `secret` being incorrect, an `Error Response` will be returned.
+
+**Example:**
+```
+-- Request:
+/api/v1.0/extend?key=sampleKey&secret=1234567890-0987654321&duration=1000
 
 -- Response:
 {

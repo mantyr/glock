@@ -90,3 +90,54 @@ func TestGlock_Unlock_LockWithDuration(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestGlock_Extend(t *testing.T) {
+	g := New(log.New(false))
+
+	// Not locked
+	if err := g.Extend("not locked", "secret", 1000); err != ErrLockNotExists {
+		t.Fatalf("Expected ErrLockNotExists, got: %v", err)
+	}
+
+	// Bad secret
+	badSecretKey := fmt.Sprintf("testBadSecretKeyExtend:%v", time.Now().Unix())
+	g.Lock(badSecretKey)
+	if err := g.Extend(badSecretKey, "bad secret", 1000); err != ErrSecretDoesNotMatch {
+		t.Fatalf("Expected ErrSecretDoesNotMatch, got: %v", err)
+	}
+
+	// Valid
+	validKey := fmt.Sprintf("testExtend:%v", time.Now().Unix())
+	validSecret, _ := g.Lock(validKey)
+	duration := 1000
+	if err := g.Extend(validKey, validSecret, duration); err != nil {
+		t.Fatal(err)
+	}
+
+	// Ensure the extension is removed after the current time * the durationProvided above
+	time.Sleep(time.Duration(duration) * time.Millisecond)
+	if _, err := g.Lock(validKey); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGlock_Extend_LockWithDuration(t *testing.T) {
+	g := New(log.New(false))
+
+	// Valid
+	validKey := fmt.Sprintf("testExtendWithDuration:%v", time.Now().Unix())
+	duration := 1000
+	validSecret, _ := g.LockWithDuration(validKey, duration)
+
+	// Extend within the duration
+	time.Sleep(time.Duration(duration / 2) * time.Millisecond)
+	if err := g.Extend(validKey, validSecret, duration); err != nil {
+		t.Fatal(err)
+	}
+
+	// Now wait passed the duration and ensure it can't be extended (because its no longer locked)
+	time.Sleep(time.Duration(duration * 2) * time.Millisecond)
+	if err := g.Extend(validKey, validSecret, duration); err != ErrLockNotExists {
+		t.Fatal(err)
+	}
+}
