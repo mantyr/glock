@@ -45,7 +45,7 @@ func New(logger *log.Logger, port int, glocker glock.Glocker) *glockApi {
 
 // Run starts the glockApi server.
 func (g glockApi) Run() {
-	http.HandleFunc("/lock", g.HandleLock)
+	http.HandleFunc(g.endpoint("lock"), g.HandleLock)
 
 	g.logger.Error(http.ListenAndServe(fmt.Sprintf(":%v", g.port), nil))
 }
@@ -68,4 +68,9 @@ func (g glockApi) Write(a *apiResponse, w http.ResponseWriter, r *http.Request) 
 	if err := json.NewEncoder(w).Encode(a); err != nil {
 		g.logger.Error(err)
 	}
+}
+
+// endpoint returns the full path to use for an API endpoint.
+func (glockApi) endpoint(path string) string {
+	return "/api/v1.0/" + path
 }
