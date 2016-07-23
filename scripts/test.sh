@@ -5,4 +5,6 @@
 # Usage:
 #    ./test.sh
 
+cd $GOPATH/src/github.com/KyleBanks/glock
+
 go test -cover $@ $(go list ./... | grep -v vendor)

@@ -4,8 +4,11 @@
 
 `glock` is a REST based locking system for distributed applications.
 
-- [Core Concepts](#core-concepts)
+- [Installation](#installation)
+    - [Docker](#docker)
+    - [Source](#source)
 - [Options](#options)
+- [Core Concepts](#core-concepts)
 - [API](#api)
     - [General](#general)
     - [Lock](#lock)
@@ -13,11 +16,32 @@
 - [Testing](#testing)
 - [License](#license)
 
-## Core Concepts
+## Installation
 
-The majority of `glock` actions require, at minimum, a `key` and a `secret`.
-- The `key` is any string that you use to identify a lock. For example, if you were building a system that sends emails to users on a timed schedule, and you want to ensure only one server/thread sends the email to each user, you may use the email address or username as the key. This value is shared across all instances of your application, to ensure everyone is working with the same `key`.
-- The `secret` is a unique value returned by lock commands that allows you to perform additional actions on that key in the future, such as unlocking or extending a lock on the key. Think of it as an authorization code, allowing only the client who successfully placed the lock to then interact with it.
+Installing `glock` can be done a few different ways, the preferred being to use the official [Docker image](https://hub.docker.com/r/kylebanks/glock/).
+
+### Docker
+
+Simply pull the image, and run:
+
+```
+$ docker pull kylebanks/glock
+$ docker run kylebanks/glock
+```
+
+### Binary
+
+If Docker isn't your thing, you can download the appropriate binary for your platform on the [Releases](https://github.com/KyleBanks/glock/releases) page.
+
+### Source
+
+Alternatively you can build and run `glock` from source. `glock` is built using [Go](https://golang.org) so assuming you've got a working Go installation, you can simply do the following:
+
+```
+$ go get github.com/KyleBanks/glock
+$ cd $GOPATH/src/github.com/KyleBanks/glock
+$ go run main.go
+```
 
 ## Options
 
@@ -25,6 +49,12 @@ The following ptions can be specified when running `glock`:
 
 - `-p` *(Default: 7887)*: The port to run `glock` on.
 - `-v` *(Default: false)*: Enables verbose output.
+
+## Core Concepts
+
+The majority of `glock` actions require, at minimum, a `key` and a `secret`.
+- The `key` is any string that you use to identify a lock. For example, if you were building a system that sends emails to users on a timed schedule, and you want to ensure only one server/thread sends the email to each user, you may use the email address or username as the key. This value is shared across all instances of your application, to ensure everyone is working with the same `key`.
+- The `secret` is a unique value returned by lock commands that allows you to perform additional actions on that key in the future, such as unlocking or extending a lock on the key. Think of it as an authorization code, allowing only the client who successfully placed the lock to then interact with it.
 
 ## API
 
@@ -126,7 +156,7 @@ If the unlock fails for any reason, such as the `key` not being locked or the `s
 
 ## Testing
 
-Tests are run using `./test.sh` in the root directory of `glock`.
+Tests are run using `./scripts/test.sh` and require a working Go installation to execute.
 
 ## License
 
