@@ -24,6 +24,9 @@ var (
 
 	// Returned when attempting to use a secret that doesn't match the locked key's secret.
 	ErrSecretDoesNotMatch = &GlockError{Code: 6, Message: "Secret does not match."}
+
+	// Returned when a duration is not provided.
+	ErrMissingDuration = &GlockError{Code: 7, Message: "Missing required param: 'duration'"}
 )
 
 type GlockError struct {
