@@ -6,6 +6,7 @@
 
 - [Installation](#installation)
     - [Docker](#docker)
+    - [Binary](#binary)
     - [Source](#source)
 - [Options](#options)
 - [Core Concepts](#core-concepts)
