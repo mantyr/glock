@@ -9,6 +9,7 @@
 - [API](#api)
     - [General](#general)
     - [Lock](#lock)
+    - [Unlock](#unlock)
 - [Testing](#testing)
 - [License](#license)
 
@@ -16,7 +17,7 @@
 
 The majority of `glock` actions require, at minimum, a `key` and a `secret`.
 - The `key` is any string that you use to identify a lock. For example, if you were building a system that sends emails to users on a timed schedule, and you want to ensure only one server/thread sends the email to each user, you may use the email address or username as the key. This value is shared across all instances of your application, to ensure everyone is working with the same `key`.
-- The `secret` is a unique value returned by lock commands that allows you to perform additional actions on that key in the future, such as unlocking or extending a lock on the key.
+- The `secret` is a unique value returned by lock commands that allows you to perform additional actions on that key in the future, such as unlocking or extending a lock on the key. Think of it as an authorization code, allowing only the client who successfully placed the lock to then interact with it.
 
 ## Options
 
@@ -77,16 +78,16 @@ Attempts to place a lock on a particular `key`.
 
 **Response:**
 
-If the lock was successful, a `Success Response` is returned containing a `secret` that can be used in future requests to modify the lock.
+If the lock is successful, a `Success Response` is returned containing a `secret` that can be used in future requests to modify the lock.
 
-If the lock failed for any reason, including the `key` already being locked, an `Error Response` will be returned.
+If the lock fails for any reason, including the `key` already being locked, an `Error Response` will be returned.
 
 **Example:**
 ```
-# Request:
+-- Request:
 /api/v1.0/lock?key=sampleKey
 
-# Response:
+-- Response:
 {
     "success": true,
     "extras": {
@@ -95,6 +96,33 @@ If the lock failed for any reason, including the `key` already being locked, an 
 }
 ```
 
+### Unlock
+
+Removes the existing lock on a particular `key`, using the `secret` returned from the lock action as authorization to perform the unlock.
+
+**Path:** */api/v1.0/unlock*
+
+**Parameters:**
+- `key`: The `key` to unlock.
+- `secret`: The `secret` returned by a lock action that grants authorization to unlock the `key`. If the secret is incorrect, the unlock will fail.
+
+**Response:**
+
+If the unlock is successful, a `Success Response` is returned.
+
+If the unlock fails for any reason, such as the `key` not being locked or the `secret` being incorrect, an `Error Response` will be returned.
+
+**Example:**
+```
+-- Request:
+/api/v1.0/unlock?key=sampleKey&secret=1234567890-0987654321
+
+-- Response:
+{
+    "success": true,
+    "extras": {}
+}
+```
 
 ## Testing
 

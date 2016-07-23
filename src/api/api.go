@@ -46,6 +46,7 @@ func New(logger *log.Logger, port int, glocker glock.Glocker) *glockApi {
 // Run starts the glockApi server.
 func (g glockApi) Run() {
 	http.HandleFunc(g.endpoint("lock"), g.HandleLock)
+	http.HandleFunc(g.endpoint("unlock"), g.HandleUnlock)
 
 	g.logger.Error(http.ListenAndServe(fmt.Sprintf(":%v", g.port), nil))
 }
