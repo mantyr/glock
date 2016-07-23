@@ -64,7 +64,9 @@ Attempts to place a lock on a particular `key`.
 
 **Response:**
 
-If the lock was successful, a `Success Response` is returned containing a `secret`, otherwise an `Error Response` is returned with an explanation for what went wrong.
+If the lock was successful, a `Success Response` is returned containing a `secret` that can be used in future requests to modify the lock.
+
+If the lock failed for any reason, including the `key` already being locked, an `Error Response` will be returned.
 
 **Example:**
 ```
@@ -83,7 +85,7 @@ If the lock was successful, a `Success Response` is returned containing a `secre
 
 ## Testing
 
-Tests are run using `./test.sh` in the root directory.
+Tests are run using `./test.sh` in the root directory of `glock`.
 
 ## License
 
