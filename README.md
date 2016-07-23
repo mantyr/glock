@@ -1,6 +1,6 @@
-# glock
-
 [![Build Status](https://travis-ci.org/KyleBanks/glock.svg?branch=master)](https://travis-ci.org/KyleBanks/glock)
+
+![Glock](./assets/glock.png)
 
 `glock` is a REST based locking system for distributed applications.
 
