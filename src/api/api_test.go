@@ -32,7 +32,9 @@ func ValidateApiResponse(t *testing.T, w *httptest.ResponseRecorder) *apiRespons
 	}
 
 	if !res.Success {
-		t.Fatal("Unexpected unsuccessful response: %v", res)
+		t.Fatalf("Unexpected unsuccessful response: %v", res)
+	} else if res.Error != nil {
+		t.Fatalf("Expected nil error to be returned for successful request: %v", res.Error)
 	}
 
 	return &res

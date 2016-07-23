@@ -24,7 +24,7 @@ func NewFailedResponse(err *glock.GlockError) *apiResponse {
 	}
 }
 
-// NewSuccessRepsonse initializes and returns a success apiResponse with a map of extras.
+// NewSuccessResponse initializes and returns a success apiResponse with a map of extras.
 func NewSuccessResponse(extras map[string]string) *apiResponse {
 	return &apiResponse{
 		Success: true,
@@ -33,5 +33,5 @@ func NewSuccessResponse(extras map[string]string) *apiResponse {
 }
 
 func (a apiResponse) String() string {
-	return fmt.Sprintf(`{Success: %v, Error: %v}`, a.Success, a.Error)
+	return fmt.Sprintf(`{Success: %v, Extras: %v, Error: %v}`, a.Success, a.Extras, a.Error)
 }
