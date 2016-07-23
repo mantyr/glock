@@ -25,21 +25,21 @@ const (
 )
 
 type glockApi struct {
-	Logger *log.Logger
+	logger *log.Logger
 
-	Port int
+	port int
 
-	Glocker glock.Glocker
+	glocker glock.Glocker
 }
 
 // New instantiates and returns a glockApi instance.
 func New(logger *log.Logger, port int, glocker glock.Glocker) *glockApi {
 	return &glockApi {
-		Logger: logger,
+		logger: logger,
 
-		Port: port,
+		port: port,
 
-		Glocker: glocker,
+		glocker: glocker,
 	}
 }
 
@@ -47,18 +47,23 @@ func New(logger *log.Logger, port int, glocker glock.Glocker) *glockApi {
 func (g glockApi) Run() {
 	http.HandleFunc("/lock", g.lockHandler)
 
-	g.Logger.Error(http.ListenAndServe(fmt.Sprintf(":%v", g.Port), nil))
+	g.logger.Error(http.ListenAndServe(fmt.Sprintf(":%v", g.port), nil))
 }
 
 // Write outputs the ApiResponse as JSON to the ResponseWriter.
 func (g glockApi) Write(a *apiResponse, w http.ResponseWriter, r *http.Request) {
-	g.Logger.Printf("%v: %v", r.RequestURI, a)
-	if a.Success {
+	g.logger.Printf("%v: %v", r.RequestURI, a)
+
+	// Set the response code
+	if a.success {
 		w.WriteHeader(codeSuccess)
 	} else {
 		w.WriteHeader(codeError)
 	}
 
+	// Set the content-type
 	w.Header().Add(contentTypeHeaderName, contentTypeHeaderValue)
+
+	// Write the response
 	json.NewEncoder(w).Encode(a)
 }

@@ -9,6 +9,10 @@ The following ptions can be specified when running `glock`:
 - `-p` *(Default: 7887)*: The port to run `glock` on.
 - `-v` *(Default: false)*: Enables verbose output.
 
+## Testing
+
+Tests are run using `./test.sh` in the root directory.
+
 ## License
 
 ```

@@ -1,20 +1,27 @@
 package api
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/KyleBanks/glock/src/glock"
+)
+
+var (
+	SuccessResponse = &apiResponse{success: true, error: nil}
+)
 
 type apiResponse struct {
-	Success bool `json:"success"`
-	Error *apiError `json:"error"`
+	success bool `json:"success"`
+	error *glock.GlockError `json:"error"`
 }
 
 // NewFailedResponse instantiates and returns a new apiResponse for a failure case.
-func NewFailedResponse(err apiError) *apiResponse {
+func NewFailedResponse(err *glock.GlockError) *apiResponse {
 	return &apiResponse{
-		Success: false,
-		Error: &err,
+		success: false,
+		error: err,
 	}
 }
 
 func (a apiResponse) String() string {
-	return fmt.Sprintf(`{Success: %v, Error: %v}`, a.Success, a.Error)
+	return fmt.Sprintf(`{Success: %v, Error: %v}`, a.success, a.error)
 }
