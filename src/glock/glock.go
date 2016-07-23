@@ -8,51 +8,100 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+var (
+	// noExpire is used when a lock is not created with an expire time, and
+	// is used to indicate that the lock will never expire.
+	noExpire = time.Time{}
+)
+
 type glock struct {
 	mu *sync.Mutex
-	lockRegister map[string]string
+	lockRegister map[string]*lock
 
 	logger *log.Logger
+}
+
+type lock struct {
+	secret string
+	expire time.Time
 }
 
 // New instantiates and returns a glock instance.
 func New(logger *log.Logger) *glock {
 	return &glock{
 		mu: &sync.Mutex{},
-		lockRegister: make(map[string]string),
+		lockRegister: make(map[string]*lock),
 
 		logger: logger,
 	}
+}
+
+// lock attempts to register a lock on a key with the specified expire time.
+func (g glock) lock(key string, expire time.Time) (string, *GlockError) {
+	g.logger.Printf("lock(%v, %v)", key, expire)
+
+	// Check if we're already locked
+	if g.isLocked(key) {
+		return "", ErrLockExists
+	}
+
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	// Looks good, create the new lock
+	lock := &lock{
+		secret: g.generateSecret(),
+		expire: expire,
+	}
+	g.lockRegister[key] = lock
+
+	return lock.secret, nil
+}
+
+// unlock immediately removes the lock on a key.
+// This method is expected to be called after validation and after the glock mutex is locked.
+func (g glock) unlock(key string) {
+	delete(g.lockRegister, key)
+}
+
+// isLocked returns a boolean indicating if a key is locked, and ensures that if a lock exists,
+// the expire time has not passed.
+func (g glock) isLocked(key string) bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	if lock, ok := g.lockRegister[key]; !ok {
+		return false
+	} else if lock.expire != noExpire && lock.expire.UnixNano() <= time.Now().UnixNano() {
+		g.unlock(key)
+		return false
+	}
+	return true
 }
 
 // Lock attempts to register a lock on the specified key and return a secret value that
 // can later be used to unlock.
 func (g glock) Lock(key string) (string, *GlockError) {
 	g.logger.Printf("Lock(%v)", key)
-
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	if _, ok := g.lockRegister[key]; !ok {
-		secret := g.generateSecret()
-		g.lockRegister[key] = secret
-		return secret, nil
-	}
-
-	return "", ErrLockExists
+	return g.lock(key, noExpire)
 }
 // LockWithDuration is the same as Lock, however it automatically expires the key after
 // a specified duration.
 func (g glock) LockWithDuration(key string, durationMs int) (string, *GlockError) {
 	g.logger.Printf("LockWithDuration(%v, %v)", key, durationMs)
 
-	secret, err := g.Lock(key)
+	// Calculate the expire time
+	expire := time.Now().Add(time.Millisecond * time.Duration(durationMs))
+
+	// Create the lock
+	secret, err := g.lock(key, expire)
 	if err != nil {
 		return "", err
 	}
 
+	// Unlock the key after the specified duration
 	go func(key, secret string, durationMs int) {
-		time.Sleep(time.Duration(durationMs) * time.Millisecond)
+		time.Sleep(expire.Sub(time.Now()))
 		g.Unlock(key, secret)
 	}(key, secret, durationMs)
 
@@ -64,16 +113,21 @@ func (g glock) LockWithDuration(key string, durationMs int) (string, *GlockError
 func (g glock) Unlock(key, secret string) *GlockError {
 	g.logger.Printf("Unlock(%v, %v)", key, secret)
 
+	// If it's not locked, return
+	if !g.isLocked(key) {
+		return ErrLockNotExists
+	}
+
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	if val, ok := g.lockRegister[key]; !ok {
-		return ErrLockNotExists
-	} else if val != secret {
+	// Check the secret
+	if lock := g.lockRegister[key]; lock.secret != secret {
 		return ErrSecretDoesNotMatch
 	}
 
-	delete(g.lockRegister, key)
+	// Looks good, unlock
+	g.unlock(key)
 	return nil
 }
 

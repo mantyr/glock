@@ -47,8 +47,7 @@ func TestGlock_LockWithDuration(t *testing.T) {
 	}
 
 	// Wait for the lock to expire
-	// TODO: When the unlocking becomes more aggress, remove the *2
-	time.Sleep(time.Duration(timeout * 2) * time.Millisecond)
+	time.Sleep(time.Duration(timeout) * time.Millisecond)
 
 	// Try to lock again, expecting success
 	if secret, err := g.LockWithDuration(validKey, timeout); err != nil {
@@ -76,6 +75,17 @@ func TestGlock_Unlock(t *testing.T) {
 	// Valid
 	validKey := fmt.Sprintf("testUnlock:%v", time.Now().Unix())
 	validSecret, _ := g.Lock(validKey)
+	if err := g.Unlock(validKey, validSecret); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGlock_Unlock_LockWithDuration(t *testing.T) {
+	g := New(log.New(false))
+
+	// Valid
+	validKey := fmt.Sprintf("testUnlockWithDuration:%v", time.Now().Unix())
+	validSecret, _ := g.LockWithDuration(validKey, 20000)
 	if err := g.Unlock(validKey, validSecret); err != nil {
 		t.Fatal(err)
 	}
