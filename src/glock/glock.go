@@ -5,6 +5,7 @@ import (
 	"github.com/KyleBanks/glock/src/log"
 	"sync"
 	"time"
+	"github.com/satori/go.uuid"
 )
 
 type glock struct {
@@ -24,36 +25,38 @@ func New(logger *log.Logger) *glock {
 	}
 }
 
-// Lock attempts to register a lock on the specified key with a secret value that
+// Lock attempts to register a lock on the specified key and return a secret value that
 // can later be used to unlock.
-func (g glock) Lock(key, secret string) *GlockError {
-	g.logger.Printf("Lock(%v, %v)", key, secret)
+func (g glock) Lock(key string) (string, *GlockError) {
+	g.logger.Printf("Lock(%v)", key)
 
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
 	if _, ok := g.lockRegister[key]; !ok {
+		secret := g.generateSecret()
 		g.lockRegister[key] = secret
-		return nil
+		return secret, nil
 	}
 
-	return ErrLockExists
+	return "", ErrLockExists
 }
 // LockWithDuration is the same as Lock, however it automatically expires the key after
 // a specified duration.
-func (g glock) LockWithDuration(key, secret string, durationMs int) *GlockError {
-	g.logger.Printf("LockWithDuration(%v, %v, %v)", key, secret, durationMs)
+func (g glock) LockWithDuration(key string, durationMs int) (string, *GlockError) {
+	g.logger.Printf("LockWithDuration(%v, %v)", key, durationMs)
 
-	if err := g.Lock(key, secret); err != nil {
-		return err
+	secret, err := g.Lock(key)
+	if err != nil {
+		return "", err
 	}
 
-	go func() {
+	go func(key, secret string, durationMs int) {
 		time.Sleep(time.Duration(durationMs) * time.Millisecond)
 		g.Unlock(key, secret)
-	}()
+	}(key, secret, durationMs)
 
-	return nil
+	return secret, nil
 }
 
 // Unlock attempts to unlock a locked key using the secret provided.
@@ -72,4 +75,9 @@ func (g glock) Unlock(key, secret string) *GlockError {
 
 	delete(g.lockRegister, key)
 	return nil
+}
+
+// generateSecret creates and returns a unique secret key.
+func (g glock) generateSecret() string {
+	return uuid.NewV4().String()
 }

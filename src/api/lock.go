@@ -9,9 +9,9 @@ import (
 
 const (
 	LockRequired_Key = "key"
-	LockRequired_Secret = "secret"
-
 	LockOptional_Duration = "duration"
+
+	ExtraSecret = "secret"
 )
 
 
@@ -21,14 +21,10 @@ func (g glockApi) HandleLock(w http.ResponseWriter, r *http.Request) {
 	if !router.HasParam(r, LockRequired_Key) {
 		g.Write(NewFailedResponse(glock.ErrMissingKey), w, r)
 		return
-	} else if !router.HasParam(r, LockRequired_Secret) {
-		g.Write(NewFailedResponse(glock.ErrMissingSecret), w, r)
-		return
 	}
 
 	// Grab the required params ...
 	key := router.Param(r, LockRequired_Key)
-	secret := router.Param(r, LockOptional_Duration)
 
 	// ... and the optional ones.
 	var duration int
@@ -42,17 +38,20 @@ func (g glockApi) HandleLock(w http.ResponseWriter, r *http.Request) {
 
 	// Determine what to do based on if there's a duration
 	var err *glock.GlockError
+	var secret string
 	if duration > 0 {
-		err = g.glocker.LockWithDuration(key, secret, duration)
+		secret, err = g.glocker.LockWithDuration(key, duration)
 	} else {
-		err = g.glocker.Lock(key, secret)
+		secret, err = g.glocker.Lock(key)
 	}
 
 	// Handle the response
 	if err != nil {
-
+		g.Write(NewFailedResponse(err), w, r)
 		return
 	}
 
-	g.Write(SuccessResponse, w, r)
+	g.Write(NewSuccessResponse(map[string]string{
+		ExtraSecret: secret,
+	}), w, r)
 }

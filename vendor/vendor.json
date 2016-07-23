@@ -19,6 +19,12 @@
 			"path": "github.com/KyleBanks/go-kit/router",
 			"revision": "f7fdd20d1381e4f457e7e9fbb2f13458b5a9656b",
 			"revisionTime": "2016-07-16T17:14:44Z"
+		},
+		{
+			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "0aa62d5ddceb50dbcb909d790b5345affd3669b6",
+			"revisionTime": "2016-07-13T18:03:06Z"
 		}
 	],
 	"rootPath": "github.com/KyleBanks/glock"

@@ -12,13 +12,18 @@ func TestGlock_Lock(t *testing.T) {
 
 	// Valid case
 	validKey := fmt.Sprintf("testLock:%v", time.Now().Unix())
-	if err := g.Lock(validKey, "secret"); err != nil {
+
+	if secret, err := g.Lock(validKey); err != nil {
 		t.Fatal(err)
+	} else if len(secret) == 0 {
+		t.Fatalf("Invalid empty secret returned")
 	}
 
 	// Already locked
-	if err := g.Lock(validKey, "secret"); err != ErrLockExists {
+	if secret, err := g.Lock(validKey); err != ErrLockExists {
 		t.Fatalf("Expected ErrLockExists, got: %v", err)
+	} else if len(secret) != 0 {
+		t.Fatalf("Invalid secret returned: %v", secret)
 	}
 }
 
@@ -28,13 +33,17 @@ func TestGlock_LockWithDuration(t *testing.T) {
 	// Valid case
 	validKey := fmt.Sprintf("testLockWithDuration:%v", time.Now().Unix())
 	timeout := 200
-	if err := g.LockWithDuration(validKey, "secret", timeout); err != nil {
+	if secret, err := g.LockWithDuration(validKey, timeout); err != nil {
 		t.Fatal(err)
+	} else if len(secret) == 0 {
+		t.Fatalf("Invalid empty secret returned")
 	}
 
 	// Already locked
-	if err := g.LockWithDuration(validKey, "secret", timeout); err != ErrLockExists {
+	if secret, err := g.LockWithDuration(validKey, timeout); err != ErrLockExists {
 		t.Fatalf("Expected ErrLockExists, got: %v", err)
+	} else if len(secret) != 0 {
+		t.Fatalf("Invalid secret returned: %v", secret)
 	}
 
 	// Wait for the lock to expire
@@ -42,8 +51,10 @@ func TestGlock_LockWithDuration(t *testing.T) {
 	time.Sleep(time.Duration(timeout * 2) * time.Millisecond)
 
 	// Try to lock again, expecting success
-	if err := g.LockWithDuration(validKey, "secret", timeout); err != nil {
+	if secret, err := g.LockWithDuration(validKey, timeout); err != nil {
 		t.Fatal(err)
+	} else if len(secret) == 0 {
+		t.Fatalf("Invalid empty secret returned")
 	}
 }
 
@@ -57,15 +68,14 @@ func TestGlock_Unlock(t *testing.T) {
 
 	// Bad secret
 	badSecretKey := fmt.Sprintf("testBadSecretKey:%v", time.Now().Unix())
-	g.Lock(badSecretKey, "secret")
+	g.Lock(badSecretKey)
 	if err := g.Unlock(badSecretKey, "bad secret"); err != ErrSecretDoesNotMatch {
 		t.Fatalf("Expected ErrSecretDoesNotMatch, got: %v", err)
 	}
 
 	// Valid
 	validKey := fmt.Sprintf("testUnlock:%v", time.Now().Unix())
-	validSecret := "a secret"
-	g.Lock(validKey, validSecret)
+	validSecret, _ := g.Lock(validKey)
 	if err := g.Unlock(validKey, validSecret); err != nil {
 		t.Fatal(err)
 	}

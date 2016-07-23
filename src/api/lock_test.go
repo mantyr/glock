@@ -20,3 +20,5 @@ func TestGlockApi_HandleLock_MissingKey(t *testing.T) {
 		t.Fatalf("Unexpected error returned: %v", res.Error)
 	}
 }
+
+// TODO: Positive case

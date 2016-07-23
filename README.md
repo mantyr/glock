@@ -8,7 +8,7 @@
 
 The majority of `glock` actions require, at minimum, a `key` and a `secret`.
 - The `key` is any string that you use to identify a lock. For example, if you were building a system that sends emails to users on a timed schedule, and you want to ensure only one server/thread sends the email to each user, you may use the email address or username as the key. This value is shared across all instances of your application, to ensure everyone is working with the same `key`.
-- The `secret` is unique to each instance of your application. It could be a thread or server identifier, a UUID, or anything that you can ensure each instance of your application will have a unique value for. When a lock is successfully placed on a `key`, this secret is the only way to make modifications to the lock in the future, such as unlocking or extending the lock.   
+- The `secret` is a unique value returned by lock commands that allows you to perform additional actions on that key in the future, such as unlocking or extending a lock on the key.
 
 ## Options
 
@@ -25,14 +25,60 @@ All `glock` methods are exposed via a REST API accessible at:
 <host>:<port>/api/v1.0/<action>
 ```
 
+### Success Response
+For any action, one of two possible JSON responses can be returned. For successful actions, a `Success Response` is returned that looks like so:
+
+```
+{
+    "success": true,
+    "extras": {}
+}
+```
+The `extras` property may or may not exist, depending on the action. The contents of `extras` is documented for each action below.
+
+### Error Response
+For failed actions, a `Error Response` is returned:
+```
+{
+    "success": false,
+    "error": {
+        "code": int,
+        "message": string
+    }
+}
+```
+
+The error code of an `Error Response` contains a particular error code for each unique error that can occur, allowing you to take specific action based on the error received.
+
 ### /lock
 
 **Path:** */api/v1.0/lock*
 
 **Parameters:**
 - `key`: The `key` to attempt to lock.
-- `secret`: If the lock is successful, the `secret` can be used by future requests to modify the locked `key`, such as `/unlock`.
 - `duration` *Optional*:  If specified, the lock on the `key` will be removed automatically after the specified duration, in milliseconds.
+
+**Description:**
+
+Attempts to place a lock on a particular `key`.
+
+**Response:**
+
+If the lock was successful, a `Success Response` is returned containing a `secret`, otherwise an `Error Response` is returned with an explanation for what went wrong.
+
+**Example:**
+```
+# Request:
+/api/v1.0/lock?key=sampleKey
+
+# Response:
+{
+    "success": true,
+    "extras": {
+        "secret": "1234567890-0987654321"
+    }
+}
+```
 
 
 ## Testing
