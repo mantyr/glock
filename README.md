@@ -67,15 +67,13 @@ The error code of an `Error Response` contains a particular error code for each 
 
 ### Lock
 
+Attempts to place a lock on a particular `key`.
+
 **Path:** */api/v1.0/lock*
 
 **Parameters:**
 - `key`: The `key` to attempt to lock.
 - `duration` *Optional*:  If specified, the lock on the `key` will be removed automatically after the specified duration, in milliseconds.
-
-**Description:**
-
-Attempts to place a lock on a particular `key`.
 
 **Response:**
 
